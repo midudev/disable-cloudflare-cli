@@ -1,3 +1,5 @@
+![ezgif-14cee15a0b890126](https://github.com/user-attachments/assets/15842fc6-3a36-4659-8ce9-d94f7087cfc2)
+
 # Cloudflare Proxy Manager
 
 A CLI tool to manage Cloudflare proxy settings for your DNS records. Easily enable or disable Cloudflare proxy (orange cloud) for your domains.
