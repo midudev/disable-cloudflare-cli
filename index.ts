@@ -8,6 +8,10 @@ const CLOUDFLARE_API_BASE = 'https://api.cloudflare.com/client/v4'
 let cloudflareToken = process.env.CLOUDFLARE_TOKEN
 const messages = getMessages()
 
+/**
+ * Makes authenticated requests to the Cloudflare API
+ * Handles authorization headers and validates response success
+ */
 async function fetchCloudflareAPI<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -30,6 +34,10 @@ async function fetchCloudflareAPI<T>(
   return data
 }
 
+/**
+ * Fetches all active Cloudflare zones with pagination support
+ * Returns a complete list of zones across all pages
+ */
 async function getZones(): Promise<Zone[]> {
   let allZones: Zone[] = []
   let page = 1
@@ -48,6 +56,10 @@ async function getZones(): Promise<Zone[]> {
   return allZones
 }
 
+/**
+ * Retrieves all DNS records for a specific zone with pagination
+ * Handles up to 100 records per page to minimize API calls
+ */
 async function getDNSRecords(zoneId: string): Promise<DNSRecord[]> {
   let allRecords: DNSRecord[] = []
   let page = 1
@@ -66,6 +78,10 @@ async function getDNSRecords(zoneId: string): Promise<DNSRecord[]> {
   return allRecords
 }
 
+/**
+ * Updates the proxy status of a DNS record (orange cloud on/off)
+ * Only modifies the proxied field, leaving other settings intact
+ */
 async function updateDNSRecord(
   zoneId: string,
   recordId: string,
@@ -82,6 +98,10 @@ async function updateDNSRecord(
   )
 }
 
+/**
+ * Checks if a domain is currently being proxied through Cloudflare
+ * Detects presence of cf-ray header or cloudflare server signature
+ */
 async function isProxiedByCloudflare(domain: string): Promise<boolean> {
   try {
     const response = await fetch(`https://${domain}`, {
@@ -97,6 +117,10 @@ async function isProxiedByCloudflare(domain: string): Promise<boolean> {
   }
 }
 
+/**
+ * Verifies proxy status for multiple zones concurrently
+ * Returns a map of zone IDs to their active proxy state for quick lookup
+ */
 async function checkZonesProxyStatus(
   zones: Zone[]
 ): Promise<Map<string, boolean>> {
@@ -112,6 +136,10 @@ async function checkZonesProxyStatus(
   return statusMap
 }
 
+/**
+ * Prompts user to enter their Cloudflare API token
+ * Displays step-by-step instructions on how to obtain the token
+ */
 async function requestToken(): Promise<string> {
   p.note(
     `${messages.tokenStep1}\n${messages.tokenStep2}\n${messages.tokenStep3}\n${messages.tokenStep4}`,
@@ -136,6 +164,10 @@ async function requestToken(): Promise<string> {
   return token as string
 }
 
+/**
+ * Validates the provided token by attempting to fetch zones
+ * Returns true if token has sufficient permissions, false otherwise
+ */
 async function validateToken(token: string): Promise<boolean> {
   try {
     cloudflareToken = token
@@ -146,6 +178,10 @@ async function validateToken(token: string): Promise<boolean> {
   }
 }
 
+/**
+ * Main application flow orchestrating the entire proxy management process
+ * Handles token validation, zone selection, DNS record filtering, and batch updates
+ */
 async function main() {
   console.clear()
 
