@@ -1,5 +1,6 @@
 import neostandard from 'neostandard'
 
 export default neostandard({
-  ts: true
+  ts: true,
+  noStyle: true
 })
