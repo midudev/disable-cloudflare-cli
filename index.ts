@@ -5,7 +5,7 @@ import { getMessages } from './i18n.js'
 import type { Zone, DNSRecord, CloudflareResponse } from './types.js'
 
 const CLOUDFLARE_API_BASE = 'https://api.cloudflare.com/client/v4'
-const CLOUDFLARE_TOKEN = process.env.CLOUDFLARE_TOKEN
+let cloudflareToken = process.env.CLOUDFLARE_TOKEN
 const messages = getMessages()
 
 async function fetchCloudflareAPI<T>(
@@ -15,7 +15,7 @@ async function fetchCloudflareAPI<T>(
   const response = await fetch(`${CLOUDFLARE_API_BASE}${endpoint}`, {
     ...options,
     headers: {
-      Authorization: `Bearer ${CLOUDFLARE_TOKEN}`,
+      Authorization: `Bearer ${cloudflareToken}`,
       'Content-Type': 'application/json',
       ...options.headers
     }
@@ -112,14 +112,53 @@ async function checkZonesProxyStatus(
   return statusMap
 }
 
+async function requestToken(): Promise<string> {
+  p.note(
+    `${messages.tokenStep1}\n${messages.tokenStep2}\n${messages.tokenStep3}\n${messages.tokenStep4}`,
+    messages.howToGetToken
+  )
+
+  const token = await p.text({
+    message: messages.enterToken,
+    placeholder: messages.tokenPlaceholder,
+    validate: (value) => {
+      if (!value || value.length < 10) {
+        return messages.tokenInvalid
+      }
+    }
+  })
+
+  if (p.isCancel(token)) {
+    p.cancel(messages.operationCancelled)
+    process.exit(0)
+  }
+
+  return token as string
+}
+
+async function validateToken(token: string): Promise<boolean> {
+  try {
+    cloudflareToken = token
+    await getZones()
+    return true
+  } catch {
+    return false
+  }
+}
+
 async function main() {
   console.clear()
 
   p.intro(color.bgCyan(color.black(messages.intro)))
 
-  if (!CLOUDFLARE_TOKEN) {
-    p.cancel(messages.tokenNotFound)
-    process.exit(1)
+  if (!cloudflareToken) {
+    const token = await requestToken()
+    const isValid = await validateToken(token)
+    
+    if (!isValid) {
+      p.cancel(messages.tokenInvalid)
+      process.exit(1)
+    }
   }
 
   const s = p.spinner()
