@@ -1,0 +1,9 @@
+*.ts
+!*.d.ts
+tsconfig.json
+node_modules/
+.DS_Store
+.env
+.vscode/
+*.log
+src/
