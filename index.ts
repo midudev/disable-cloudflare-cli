@@ -146,9 +146,8 @@ async function requestToken(): Promise<string> {
     messages.howToGetToken
   )
 
-  const token = await p.text({
+  const token = await p.password({
     message: messages.enterToken,
-    placeholder: messages.tokenPlaceholder,
     validate: (value) => {
       if (!value || value.length < 10) {
         return messages.tokenInvalid

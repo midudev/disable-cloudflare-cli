@@ -1,10 +1,10 @@
 {
   "name": "disable-cloudflare",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "CLI tool to manage Cloudflare proxy settings for your DNS records",
   "type": "module",
   "bin": {
-    "disable-cloudflare": "./dist/index.js"
+    "disable-cloudflare": "dist/index.js"
   },
   "files": [
     "dist"
